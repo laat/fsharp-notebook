@@ -1,0 +1,321 @@
+#+TITLE: F# Async Notes
+#+AUTHOR: Sigurd Fosseng
+#+EMAIL: sigurd@fosseng.net
+#+STARTUP: fold
+#+OPTIONS:   H:4
+#+OPTIONS:   num:nil
+#+OPTIONS:   toc:2
+#+OPTIONS:   p:t
+#+PROPERTY: header-args    :eval no-export
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD: <style>pre.src {background-color: #303030; color: #e5e5e5;}</style>
+
+* Thunks
+
+Thunks are just delayed calculations.
+
+#+begin_src fsharp :exports code
+  let mutable i = 0
+
+  // unit -> unit -> int
+  let makeThunk () () =
+      i <- i + 1
+      i
+
+  // unit -> int
+  let x = makeThunk ()
+#+end_src
+
+#+RESULTS:
+: 0
+
+#+begin_src fsharp :exports both
+  i
+#+end_src
+
+#+RESULTS:
+: 0
+
+#+begin_src fsharp :exports both
+  x ()
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  x ()
+#+end_src
+
+#+RESULTS:
+: 2
+
+#+begin_src fsharp :exports both
+  i
+#+end_src
+
+#+RESULTS:
+: 2
+
+* Async is a thunk?
+
+#+begin_src fsharp
+  let mutable i = 0
+
+  // unit -> Async<int>
+  let calcAsync () =
+      async {
+          i <- i + 1
+          return i
+      }
+
+  // Async<int>
+  let x = calcAsync ()
+#+end_src
+
+#+RESULTS:
+: 0
+
+#+begin_src fsharp :exports both
+  i
+#+end_src
+
+#+RESULTS:
+: 0
+
+#+begin_src fsharp :exports both
+  x |> Async.RunSynchronously
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  x |> Async.RunSynchronously
+#+end_src
+
+#+RESULTS:
+: 2
+
+#+begin_src fsharp :exports both
+  i
+#+end_src
+
+#+RESULTS:
+: 2
+
+* Memoize Thunk
+
+#+begin_src fsharp
+  // http://www.fssnip.net/c4
+  let memoize f =
+      let dict = System.Collections.Concurrent.ConcurrentDictionary()
+      fun x -> dict.GetOrAdd(Some x, lazy (f x)).Force()
+
+  let mutable i = 0
+  let makeThunk () () =
+      i <- i + 1
+      i
+
+  // unit -> int
+  let x = memoize <| makeThunk ()
+#+end_src
+
+#+RESULTS:
+: 0
+
+#+begin_src fsharp :exports both
+  i
+#+end_src
+
+#+RESULTS:
+: 0
+
+#+begin_src fsharp :exports both
+  x ()
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  x ()
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  i
+#+end_src
+
+#+RESULTS:
+: 1
+
+* Memoize Async
+
+- **Pro**: calling =unit -> Async<'a>= has no side effects
+- **Con**: cache does not include soon-to-be-resolved values.
+
+#+begin_src fsharp
+  // http://www.fssnip.net/qp/title/Memoize-Async-Function
+  let inline memoizeAsync f =
+      let dict = System.Collections.Concurrent.ConcurrentDictionary()
+      fun x -> async {
+          match dict.TryGetValue (Some x) with
+          | true, result -> return result
+          | false, _ ->
+              let! result = f x
+              dict.TryAdd((Some x), result) |> ignore
+              return result
+      }
+
+  let mutable i = 0
+
+  let calcAsync () = async {
+      i <- i + 1
+      return i
+  }
+
+  // unit -> Async<int>
+  let memoizedCalcAsync = memoizeAsync calcAsync
+
+  // Async<int>
+  let x = memoizedCalcAsync  ()
+#+end_src
+
+#+RESULTS:
+: 0
+
+#+begin_src fsharp :exports both
+  i
+#+end_src
+
+#+RESULTS:
+: 0
+
+#+begin_src fsharp :exports both
+  x |> Async.RunSynchronously
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  x |> Async.RunSynchronously
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  i
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  let mutable i = 0;
+  let calcAsync () = async {
+      i <- i + 1
+      do! Async.Sleep(200)
+      return i
+  }
+  let memoizedCalcAsync = memoizeAsync calcAsync
+  let x = memoizedCalcAsync ()
+
+  // 10 before cache has value
+  [for _ in 1..5 -> x] @ [for _ in 1..5 -> memoizedCalcAsync ()]
+  |> Async.Parallel
+  |> Async.RunSynchronously
+
+  // 10 after cache has value
+  [for _ in 1..5 -> x] @ [for _ in 1..5 -> memoizedCalcAsync ()]
+  |> Async.Parallel
+  |> Async.RunSynchronously
+
+  i
+#+end_src
+
+#+RESULTS:
+: 10
+
+* Memoize Async, Task as value
+
+- **Pro**: caches soon-to-be-resolved values.
+- **Con**: calling =unit -> Async<'a>= has side effects.
+
+#+begin_src fsharp
+  // http://www.fssnip.net/sA/title/Concurrent-Memoization
+  let memoizeAsync2 f =
+      let cache = System.Collections.Concurrent.ConcurrentDictionary<'a list, System.Threading.Tasks.Task<'b>>()
+      fun x -> cache.GetOrAdd([x], fun [x] -> f(x) |> Async.StartAsTask) |> Async.AwaitTask
+
+  let mutable i = 0
+  let calcAsync () = async {
+      i <- i + 1
+      return i
+  }
+
+  // unit -> Async<int>
+  let memoizedCalcAsync = memoizeAsync2 calcAsync
+
+  // Async<int>
+  let x = memoizedCalcAsync ()
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  // INCREMENTED !!
+  i
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  x |> Async.RunSynchronously
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  x |> Async.RunSynchronously
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  i
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src fsharp :exports both
+  let mutable i = 0;
+  let calcAsync () = async {
+      i <- i + 1
+      do! Async.Sleep(200)
+      return i
+  }
+  let memoizedCalcAsync = memoizeAsync2 calcAsync
+  let x = memoizedCalcAsync ()
+
+  [for _ in 1..5 -> x] @ [for _ in 1..5 -> memoizedCalcAsync ()]
+  |> Async.Parallel
+  |> Async.RunSynchronously
+  i
+#+end_src
+
+#+RESULTS:
+: 1
+
+* Memoize Async, best of both worlds?
+
+Should be possible... [[https://github.com/Horusiath/fsharp.core.extensions/blob/7eb0c7da3803f54f4dc7b6016fe52c1903f1b36d/src/FSharp.Core.Extensions/AsyncExtensions.fs#L35-L104][right?]]
