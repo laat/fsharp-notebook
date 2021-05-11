@@ -3,10 +3,9 @@
 open System.Xml.XPath
 
 module XPathNodeIterator =
-    let toSeq (x: System.Xml.XPath.XPathNodeIterator) =
-        x
-        |> Seq.unfold
-            (fun it ->
+    let toSeq =
+        Seq.unfold
+            (fun (it: System.Xml.XPath.XPathNodeIterator) ->
                 match it.MoveNext() with
                 | false -> None
                 | true -> Some(it.Current, it))
