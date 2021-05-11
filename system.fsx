@@ -1,27 +1,13 @@
 
 [<RequireQualifiedAccess>]
 module Option =
-    open System
-    let inline ofNullable (x: 'a Nullable) = if x.HasValue then Some x.Value else None
-    let inline toNullable (x: 'a option) = match x with | Some x -> Nullable<_> x | None -> Nullable<_> null
     let inline ofResult x = match x with Ok x -> Some x | Error _ -> None
     let inline toResult x err = match x with Some x -> Ok x | None -> Error err
 
 [<RequireQualifiedAccess>]
-module Nullable =
-    open System
-    let inline ofOption (x: 'a option) = match x with | Some x -> Nullable<_> x | None -> Nullable<_> null
-    let inline toOption (x: 'a Nullable) = if x.HasValue then Some x.Value else None
-    let inline ofResult x = match x with Ok x -> Nullable<_> x | Error _ -> Nullable<_> null
-    let inline toResult (x: 'a Nullable) err = if x.HasValue then Ok x.Value else Error err
-
-[<RequireQualifiedAccess>]
 module Result =
-    open System
-    let inline ofOption x err = match x with Some x -> Ok x | None -> Error err
+    let inline ofOption err x = match x with Some x -> Ok x | None -> Error err
     let inline toOption x = match x with Ok x -> Some x | Error _ -> None
-    let inline toNullable x = match x with Ok x -> Nullable<_> x | Error _ -> Nullable<_> null
-    let inline ofNullable (x: 'a Nullable) err = if x.HasValue then Ok x.Value else Error err
     let traverse (f: 'a -> Result<'b, 'err>) (lst: 'a list): Result<'b list, 'err> =
         let initState: Result<'b list, 'err> = Ok []
         let folder (res: Result<'b list, 'err>) (next: 'a) =
@@ -33,6 +19,7 @@ module Result =
 [<RequireQualifiedAccess>]
 module String =
     open System
+    open Microsoft.FSharp.Reflection
     let inline contains (y: string) (x: string) = x.Contains(y)
     let inline endsWith (y: string) (x: string) = x.EndsWith(y)
     let inline isEmpty (x: string) = x.Length < 1
@@ -51,22 +38,24 @@ module String =
     let inline emptyToOption (x: string) = if isEmpty x then None else Some x 
     let inline nullOrEmptyToOption (x: string) = if isNullOrEmpty x then None else Some x 
     let inline nullOrWhiteSpaceToOption (x: string) = if isNullOrWhiteSpace x then None else Some x 
-    let inline toEnumIgnoreCase<'a when 'a :> Enum and 'a: struct and 'a: (new : unit -> 'a)> (a: string) =
-        let ok, v = Enum.TryParse<'a>(a, true)
-        if ok then Some v else None
 
-    let inline toEnum<'a when 'a :> Enum and 'a: struct and 'a: (new : unit -> 'a)> (a: string) =
+    let toEnum<'a when 'a :> Enum and 'a: struct and 'a: (new : unit -> 'a)> (a: string) =
         let ok, v = Enum.TryParse<'a>(a)
         if ok then Some v else None
 
+    let toEnumIgnoreCase<'a when 'a :> Enum and 'a: struct and 'a: (new : unit -> 'a)> (a: string) =
+        let ok, v = Enum.TryParse<'a>(a, true)
+        if ok then Some v else None
 
-    type String with
-        /// Strongly-typed shortcut for Enum.TryParse(). Defaults to ignoring case.
-        member this.ToEnum<'a when 'a :> Enum and 'a: struct and 'a: (new : unit -> 'a)>(?ignoreCase) =
-            let ok, v =
-                Enum.TryParse<'a>(this, defaultArg ignoreCase true)
-            if ok then Some v else None
+    let toUnion<'a> (s:string) =
+        match FSharpType.GetUnionCases typeof<'a> |> Array.filter (fun case -> case.Name = s) with
+        |[|case|] -> Some(FSharpValue.MakeUnion(case,[||]) :?> 'a)
+        |_ -> None
 
+    let toUnionIgnoreCase<'a> (s:string) =
+        match FSharpType.GetUnionCases typeof<'a> |> Array.filter (fun case -> case.Name.ToLowerInvariant() = s.ToLowerInvariant()) with
+        |[|case|] -> Some(FSharpValue.MakeUnion(case,[||]) :?> 'a)
+        |_ -> None
 
 [<RequireQualifiedAccess>]
 module Async =
@@ -118,6 +107,7 @@ module Uri =
     let inline userEscaped (x: Uri) = x.UserEscaped
     let inline userInfo (x: Uri) = x.UserInfo
 
+[<RequireQualifiedAccess>]
 module Exception =
     open System
     open System.Runtime.ExceptionServices
@@ -125,10 +115,7 @@ module Exception =
         (ExceptionDispatchInfo.Capture x).Throw ()
         Unchecked.defaultof<_>
 
-    type Exception with
-        member this.Reraise () =
-            (ExceptionDispatchInfo.Capture this).Throw ()
-            Unchecked.defaultof<_>
+
 
 [<RequireQualifiedAccess>]
 module Regex =

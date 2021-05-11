@@ -1,0 +1,150 @@
+#!fsharp
+
+#load"system.fsx"
+open System
+
+#!markdown
+
+## Option
+
+#!fsharp
+
+Nullable(10)
+|> Option.ofNullable
+
+#!fsharp
+
+Nullable<int>()
+|> Option.ofNullable 
+|> Option.isSome
+
+#!fsharp
+
+Ok "hello"
+|> Option.ofResult
+
+#!fsharp
+
+Error "failed" :> Result<'a, 'b>
+|> Option.ofResult
+|> Option.isSome
+
+#!markdown
+
+## Result
+
+#!fsharp
+
+Some 10
+|> Result.ofOption "wat"
+
+#!fsharp
+
+None :> Option<int>
+|> Result.ofOption "wat"
+
+#!fsharp
+
+[10; 11; 12;]
+|> Result.traverse (fun x -> if x < 12 then Ok x else Error "nope")
+
+#!fsharp
+
+[10; 11; 12;]
+|> Result.traverse (fun x -> if x < 13 then Ok x else Error "nope")
+
+#!markdown
+
+## String
+
+#!fsharp
+
+""
+|> String.isEmpty
+
+#!fsharp
+
+null
+|> String.isNullOrEmpty
+
+#!fsharp
+
+" "
+|> String.isNullOrWhiteSpace
+
+#!fsharp
+
+[|"a"; "b"|]
+|> String.join ","
+
+#!fsharp
+
+"fooo"
+|> String.replace "o" "i"
+
+#!fsharp
+
+type Foo = Foo = 0 | Bar = 1
+
+["Foo"; "foo"; "baz"]
+|> List.map String.toEnum<Foo>
+
+#!fsharp
+
+type Foo = Foo = 0 | Bar = 1
+
+["Foo"; "foo"; "baz"]
+|> List.map String.toEnumIgnoreCase<Foo>
+
+#!fsharp
+
+type Foo = Foo | Bar 
+
+["Foo"; "foo"; "baz"]
+|> List.map String.toUnion<Foo>
+
+#!fsharp
+
+type Foo = Foo | Bar 
+
+["fOo"; "bar"; "baz"]
+|> List.map String.toUnionIgnoreCase<Foo>
+
+#!markdown
+
+## Async
+
+#!fsharp
+
+async { return 1 }
+|> Async.map (fun x -> x + 1)
+|> Async.RunSynchronously
+
+#!fsharp
+
+async { return 1 }
+|> Async.bind (fun x -> async { return x + 1 })
+|> Async.RunSynchronously
+
+#!fsharp
+
+[ async { return 1 }; async { return 1 } ]
+|> Seq.mapAsync (fun x -> x + 1)
+|> Async.Parallel
+|> Async.RunSynchronously
+
+#!fsharp
+
+[ async { return 1 }; async { return 1 } ]
+|> Seq.iterAsync (fun x -> printfn "log %A" x)
+|> Async.RunSynchronously
+
+#!fsharp
+
+async {
+    try 
+        return (1/0)
+    with exn -> 
+        return Exception.reraise exn
+} 
+// |> Async.RunSynchronously
