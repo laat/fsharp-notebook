@@ -2,7 +2,7 @@
 [<RequireQualifiedAccess>]
 module Option =
     let inline ofResult x = match x with Ok x -> Some x | Error _ -> None
-    let inline toResult x err = match x with Some x -> Ok x | None -> Error err
+    let inline toResult err x = match x with Some x -> Ok x | None -> Error err
 
 [<RequireQualifiedAccess>]
 module Result =
@@ -114,8 +114,6 @@ module Exception =
     let reraise (x: Exception) =
         (ExceptionDispatchInfo.Capture x).Throw ()
         Unchecked.defaultof<_>
-
-
 
 [<RequireQualifiedAccess>]
 module Regex =
