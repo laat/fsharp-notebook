@@ -10,10 +10,10 @@ let output = "./output/http-http-client.json"
 let endpoint = "https://httpbin.org/get"
 
 task {
-    use file = File.OpenWrite(output)
-    use client = new HttpClient()
-    let! response = client.GetStreamAsync(endpoint)
-    do! response.CopyToAsync file
+  use file = File.OpenWrite(output)
+  use client = new HttpClient()
+  let! response = client.GetStreamAsync(endpoint)
+  do! response.CopyToAsync file
 }
 |> Async.AwaitTask
 |> Async.RunSynchronously

@@ -9,17 +9,17 @@ let options = JsonSerializerOptions()
 options.Converters.Add(JsonFSharpConverter())
 
 let json<'t> (myObj: 't) =
-    JsonSerializer.Serialize(myObj, options)
+  JsonSerializer.Serialize(myObj, options)
 
 
 let unjson<'t> (jsonString: string) : 't =
-    JsonSerializer.Deserialize<'t>(jsonString, options)
+  JsonSerializer.Deserialize<'t>(jsonString, options)
 
 type X =
-    {
-        [<JsonPropertyName("foo")>]
-        Bar: int option
-    }
+  {
+    [<JsonPropertyName("foo")>]
+    Bar: int option
+  }
 
 let jsonString = """{"foo": 1, "lol": 1}"""
 
