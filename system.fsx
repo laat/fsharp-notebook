@@ -17,6 +17,10 @@ module Result =
         List.fold folder initState lst
 
 [<RequireQualifiedAccess>]
+module Null =
+    let inline map f x = if isNull x then x else f x
+
+[<RequireQualifiedAccess>]
 module String =
     open System
     open Microsoft.FSharp.Reflection
