@@ -149,12 +149,13 @@ module Exception =
     (ExceptionDispatchInfo.Capture x).Throw()
     Unchecked.defaultof<_>
 
-[<RequireQualifiedAccess>]
+[<AutoOpen>]
 module Regex =
   open System.Text.RegularExpressions
-
-  let replace pattern replacement input =
-    Regex.Replace(input, pattern, (replacement: string))
+  [<RequireQualifiedAccess>]
+  module Regex =
+    let replace pattern replacement input =
+      Regex.Replace(input, pattern, (replacement: string))
     
   let (|Regex|_|) pattern input =
     let m = Regex.Match(input, pattern)
