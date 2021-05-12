@@ -47,7 +47,7 @@ let validationResult =
     ValidationOptions(OutputFormat = OutputFormat.Basic, RequireFormatValidation = true)
   )
 
-// When we serialize to JSON that's readable, and well defined
+// When serialize to a JSON that's readable and well defined
 // https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10
 let validationJson = JsonSerializer.Serialize(validationResult, JsonSerializerOptions(WriteIndented = true))
 (* 
