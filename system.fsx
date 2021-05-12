@@ -171,3 +171,11 @@ module DateTime =
 module DateTimeOffset =
   open System
   let inline format (format: string) (d: DateTimeOffset) = d.ToString(format)
+
+[<AutoOpen>]
+module Float =
+  open System
+  let (|Float|_|) str =
+     match Double.TryParse(str:string) with
+     | (true,d) -> Some(d)
+     | _ -> None
