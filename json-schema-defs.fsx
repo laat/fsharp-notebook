@@ -29,17 +29,6 @@ let schema =
 {
   "$id": "https://example.com/arrays.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "properties": {
-    "fruits": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/fruit" }
-    },
-    "vegetables": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/veggie" }
-    }
-  },
   "$defs": {
     "fruit": { "type": "string" },
     "veggie": {
@@ -75,5 +64,4 @@ let veggieSchema =
   |> JsonSchema.tryGetDefinition "veggie"
   |> fun x -> x.Value
 
-printfn "%s" (JsonSerializer.Serialize document)
 printfn "document is valid: %A" (veggieSchema.Validate(document.RootElement).IsValid)

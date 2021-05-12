@@ -43,5 +43,4 @@ let document =
 }
 """
 
-printfn "%s" (JsonSerializer.Serialize document)
 printfn "document is valid: %A" (schema.Validate(document.RootElement).IsValid)
