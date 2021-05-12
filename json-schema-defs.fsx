@@ -62,6 +62,6 @@ let document =
 let veggieSchema =
   schema
   |> JsonSchema.tryGetDefinition "veggie"
-  |> fun x -> x.Value
+  |> Option.get
 
 printfn "document is valid: %A" (veggieSchema.Validate(document.RootElement).IsValid)
