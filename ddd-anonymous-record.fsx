@@ -32,4 +32,4 @@ open Domain
 
 let theOne = AtLeastOne.createWhenAExists 1 None None
 let theOneValue = theOne |> AtLeastOne.value
-theOneValue.A // value on the anonymous record :D
+theOneValue.B // value on the anonymous record :D
