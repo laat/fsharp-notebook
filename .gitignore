@@ -2,8 +2,6 @@
 output/
 .fake
 .ionide
-# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode
-# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode
 
 ### VisualStudioCode ###
 .vscode/*
@@ -17,11 +15,6 @@ output/
 # Ignore all local history of files
 .history
 .ionide
-
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode
-
-# Created by https://www.toptal.com/developers/gitignore/api/visualstudio
-# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio
 
 ### VisualStudio ###
 ## Ignore Visual Studio temporary files, build results, and
@@ -390,11 +383,6 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 *.tlog
 
-# End of https://www.toptal.com/developers/gitignore/api/visualstudio
-
-# Created by https://www.toptal.com/developers/gitignore/api/node
-# Edit at https://www.toptal.com/developers/gitignore?templates=node
-
 ### Node ###
 # Logs
 logs
@@ -520,5 +508,3 @@ dist/
 # Temporary folders
 tmp/
 temp/
-
-# End of https://www.toptal.com/developers/gitignore/api/node
