@@ -14,9 +14,9 @@ module XPathNodeIterator =
 let doc = XPathDocument("./input/document.xml")
 let nav = doc.CreateNavigator()
 
-let author = nav.SelectSingleNode("//bookstore//book[1]/author/first-name")
+let author = nav.SelectSingleNode("//bookstore//book[1]/author/first-name").Value
 
-printfn "%s" author.Value
+printfn $"%s{author}"
 
 
 nav.Select("//bookstore//book/title")
