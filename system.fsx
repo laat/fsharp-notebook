@@ -152,15 +152,19 @@ module Exception =
 [<AutoOpen>]
 module Regex =
   open System.Text.RegularExpressions
+
   [<RequireQualifiedAccess>]
   module Regex =
     let replace pattern replacement input =
       Regex.Replace(input, pattern, (replacement: string))
-    
+
   let (|Regex|_|) pattern input =
     let m = Regex.Match(input, pattern)
-    if m.Success then Some(List.tail [ for g in m.Groups -> g.Value ])
-    else None
+
+    if m.Success then
+      Some(List.tail [ for g in m.Groups -> g.Value ])
+    else
+      None
 
 [<RequireQualifiedAccess>]
 module DateTime =
@@ -175,7 +179,8 @@ module DateTimeOffset =
 [<AutoOpen>]
 module Float =
   open System
+
   let (|Float|_|) str =
-     match Double.TryParse(str:string) with
-     | (true,d) -> Some(d)
-     | _ -> None
+    match Double.TryParse(str: string) with
+    | (true, d) -> Some(d)
+    | _ -> None

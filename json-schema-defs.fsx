@@ -1,8 +1,8 @@
 #!/usr/bin/env -S dotnet fsi --quiet
 #r "nuget: JsonSchema.Net"
-// 
+//
 // This file contains an example of validating against a subschema defined in #/$defs/veggies
-// 
+//
 
 open Json.Schema
 open System.Text.Json
@@ -64,4 +64,10 @@ let veggieSchema =
   |> JsonSchema.tryGetDefinition "veggie"
   |> Option.get
 
-printfn "document is valid: %A" (veggieSchema.Validate(document.RootElement).IsValid)
+printfn
+  "document is valid: %A"
+  (veggieSchema
+    .Validate(
+      document.RootElement
+    )
+    .IsValid)
