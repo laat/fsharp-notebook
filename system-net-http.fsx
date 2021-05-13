@@ -6,6 +6,7 @@ open FSharp.Control.Tasks
 open System.Net.Http
 open System.IO
 
+Directory.CreateDirectory("output")
 let output = "./output/http-http-client.json"
 let endpoint = "https://httpbin.org/get"
 
