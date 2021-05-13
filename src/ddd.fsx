@@ -3,11 +3,9 @@
 module Domain =
   type AtLeastOne =
     private
-      {
-        A: int option
+      { A: int option
         B: int option
-        C: int option
-      }
+        C: int option }
 
   module AtLeastOne =
 

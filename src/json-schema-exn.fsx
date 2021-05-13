@@ -42,14 +42,12 @@ let document = // should not validate
 """
 
 let validationResult =
-  let options = ValidationOptions(OutputFormat = OutputFormat.Basic)
-  schema.Validate(document.RootElement, options)
+  schema.Validate(document.RootElement, ValidationOptions(OutputFormat = OutputFormat.Basic))
 
 // Serialize to a JSON that's readable and well defined
 // https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10
 let validationJson =
-  let options = JsonSerializerOptions(WriteIndented = true)
-  JsonSerializer.Serialize(validationResult, options)
+  JsonSerializer.Serialize(validationResult, JsonSerializerOptions(WriteIndented = true))
 
 (*
 {

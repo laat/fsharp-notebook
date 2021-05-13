@@ -24,11 +24,15 @@ type CliArguments =
 
 let programName = fsi.CommandLineArgs |> Array.head
 
-let parser = ArgumentParser.Create<CliArguments>(programName = programName)
+let parser =
+  ArgumentParser.Create<CliArguments>(programName = programName)
 
 try
   let inputs = fsi.CommandLineArgs |> Array.tail
-  let results = parser.Parse(inputs = inputs, raiseOnUsage = true)
+
+  let results =
+    parser.Parse(inputs = inputs, raiseOnUsage = true)
+
   let all = results.GetAllResults()
   printfn "%A" all
 with e -> printfn "%s" e.Message
