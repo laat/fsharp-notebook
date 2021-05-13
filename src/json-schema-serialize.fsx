@@ -1,6 +1,5 @@
 #!/usr/bin/env -S dotnet fsi --quiet
 #r "nuget: JsonSchema.Net"
-#r "nuget: FSharp.SystemTextJson"
 //
 // This file contains a basic example of json schema validation
 //
