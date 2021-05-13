@@ -118,6 +118,19 @@ module Async =
     loop' ()
 
 [<RequireQualifiedAccess>]
+module AsyncOption =
+  let inline retn x = x |> Some |> async.Return
+
+  let inline map f x = Async.map (Option.map f) x
+
+  let inline bind f x =
+    async {
+      match! x with
+      | Some x -> return! f x
+      | None -> return None
+    }
+
+[<RequireQualifiedAccess>]
 module Seq =
   let inline mapAsync f xs = Seq.map (Async.map f) xs
 
