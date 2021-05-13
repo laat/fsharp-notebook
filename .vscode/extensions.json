@@ -1,3 +1,6 @@
 {
-  "recommendations": ["ms-dotnettools.dotnet-interactive-vscode"]
+  "recommendations": [
+    "ms-dotnettools.dotnet-interactive-vscode",
+    "esbenp.prettier-vscode"
+  ]
 }
