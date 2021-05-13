@@ -16,15 +16,16 @@ module JsonSchema =
   let private validateOptions =
     ValidationOptions(OutputFormat = OutputFormat.Basic, RequireFormatValidation = true)
 
-  let checkJson (schema: JsonSchema) (text: string) =
-    let document = JsonDocument.Parse(text)
-
-    let validation =
-      schema.Validate(document.RootElement, validateOptions)
+  let checkJsonElement' options (schema: JsonSchema) root =
+    let validation = schema.Validate(root, options)
 
     if not (validation.IsValid) then
       failwithf "JSON Schema validation error %s" (JsonSerializer.Serialize(validation, validateSerializeOptions))
 
+
+  let checkJson (schema: JsonSchema) (text: string) =
+    let document = JsonDocument.Parse(text)
+    checkJsonElement' validateOptions schema document.RootElement
     text
 
 type Person =
