@@ -1,7 +1,7 @@
 #!/usr/bin/env -S dotnet fsi --quiet
 #r "nuget: JsonSchema.Net"
 //
-// This file contains a basic example of json schema validation
+// This file contains a basic example of json schema validation during serialization
 //
 
 [<AutoOpen>]
