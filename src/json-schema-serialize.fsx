@@ -31,6 +31,14 @@ module JsonSchema =
 
   let checkJson schema text = checkJson' validateOptions schema text
 
+[<RequireQualifiedAccess>]
+module JsonSerializer =
+  open System.Text.Json
+  let serialize options obj = JsonSerializer.Serialize(obj, options)
+
+  let deserialize<'t> options (jsonString: string) : 't =
+    JsonSerializer.Deserialize<'t>(jsonString, options)
+
 type Person =
   { FirstName: string
     LastName: string
@@ -41,54 +49,56 @@ module Person =
   open System.Text.Json.Serialization
   open Json.Schema
 
-  let private schema =
-    JsonSchema.FromText
-      """
-  {
-    "$id": "https://example.com/person.schema.json",
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "Person",
-    "type": "object",
-    "properties": {
-      "firstName": {
-        "type": "string",
-        "description": "The person's first name."
-      },
-      "lastName": {
-        "type": "string",
-        "description": "The person's last name."
-      },
-      "age": {
-        "description": "Age in years which must be equal to or greater than zero.",
-        "type": "integer",
-        "minimum": 0
-      }
+  let private checkJson =
+    """
+{
+  "$id": "https://example.com/person.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Person",
+  "type": "object",
+  "properties": {
+    "firstName": {
+      "type": "string",
+      "description": "The person's first name."
+    },
+    "lastName": {
+      "type": "string",
+      "description": "The person's last name."
+    },
+    "age": {
+      "description": "Age in years which must be equal to or greater than zero.",
+      "type": "integer",
+      "minimum": 0
     }
   }
+}
   """
+    |> JsonSchema.FromText
+    |> JsonSchema.checkJson
 
-  let private serializerOptions =
+  let private serialize =
     let options =
       JsonSerializerOptions(WriteIndented = true)
 
     options.Converters.Add(JsonFSharpConverter())
-    options
 
-  let serialize (p: Person) =
-    // looking forward to
-    // https://github.com/dotnet/runtime/pull/51025
-    JsonSerializer.Serialize(
-      {| firstName = p.FirstName
-         lastName = p.LastName
-         age = p.Age |},
-      serializerOptions
-    )
-    |> JsonSchema.checkJson schema
+    JsonSerializer.serialize options
+
+
+  // looking forward to
+  // https://github.com/dotnet/runtime/pull/51025
+  let toJson (p: Person) =
+
+    {| firstName = p.FirstName
+       lastName = p.LastName
+       age = p.Age |}
+    |> serialize
+    |> checkJson
 
 
 
 { FirstName = "John"
   LastName = "Doe"
   Age = 21 }
-|> Person.serialize
+|> Person.toJson
 |> printfn "%s"
