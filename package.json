@@ -16,9 +16,9 @@
     "prepare": "husky install && dotnet tool restore",
     "lint": "run-s lint:*",
     "lint:prettier": "prettier \"**/*\" --ignore-unknown --check",
-    "lint:fantomas": "dotnet fantomas . --check",
+    "lint:fantomas": "dotnet fantomas . --recurse --check",
     "lint-fix": "run-s lint-fix:*",
     "lint-fix:prettier": "prettier \"**/*\" --ignore-unknown --write",
-    "lint-fix:fantomas": "dotnet fantomas ."
+    "lint-fix:fantomas": "dotnet fantomas . --recurse"
   }
 }
