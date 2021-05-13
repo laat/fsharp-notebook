@@ -46,7 +46,7 @@ module Person =
   open System.Text.Json.Serialization
   open Json.Schema
 
-  let private checkJson =
+  let private schema =
     """
 {
   "$id": "https://example.com/person.schema.json",
@@ -71,26 +71,22 @@ module Person =
 }
   """
     |> JsonSchema.FromText
-    |> JsonSchema.checkJson
 
-  let private serialize =
+  let private serializationOptions =
     let options =
       JsonSerializerOptions(WriteIndented = true)
 
     options.Converters.Add(JsonFSharpConverter())
-
-    JsonSerializer.serialize options
-
+    options
 
   // looking forward to
   // https://github.com/dotnet/runtime/pull/51025
   let toJson (p: Person) =
-
     {| firstName = p.FirstName
        lastName = p.LastName
        age = p.Age |}
-    |> serialize
-    |> checkJson
+    |> JsonSerializer.serialize serializationOptions
+    |> JsonSchema.checkJson schema
 
 
 
