@@ -8,9 +8,9 @@ open System.Text.Json.Serialization
 
 [<RequireQualifiedAccess>]
 module JsonSerializer =
-  let serialize options obj = JsonSerializer.Serialize(obj, options)
+  let inline serialize options obj = JsonSerializer.Serialize(obj, options)
 
-  let deserialize<'t> options (jsonString: string) : 't =
+  let inline deserialize<'t> options (jsonString: string) : 't =
     JsonSerializer.Deserialize<'t>(jsonString, options)
 
 let options = JsonSerializerOptions()
