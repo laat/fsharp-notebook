@@ -31,13 +31,6 @@ module JsonSchema =
 
   let checkJson schema text = checkJson' validateOptions schema text
 
-[<RequireQualifiedAccess>]
-module JsonSerializer =
-  open System.Text.Json
-  let serialize options obj = JsonSerializer.Serialize(obj, options)
-
-  let deserialize<'t> options (jsonString: string) : 't =
-    JsonSerializer.Deserialize<'t>(jsonString, options)
 
 type Person =
   { FirstName: string
