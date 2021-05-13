@@ -5,36 +5,40 @@
 // This file contains a basic example of json schema validation
 //
 
-[<RequireQualifiedAccess>]
+[<AutoOpen>]
+module Json =
+  [<RequireQualifiedAccess>]
+  module JsonSerializer =
+    open System.Text.Json
+    let inline serialize options obj = JsonSerializer.Serialize(obj, options)
+
+[<AutoOpen>]
 module JsonSchema =
   open System.Text.Json
   open Json.Schema
 
-  let private validateSerializeOptions =
-    JsonSerializerOptions(WriteIndented = true)
+  [<RequireQualifiedAccess>]
+  module ValidationResults =
+    let checkIsValid (result: ValidationResults) =
+      if not (result.IsValid) then
+        result
+        |> JsonSerializer.serialize (JsonSerializerOptions(WriteIndented = true))
+        |> failwithf "JSON Schema validation error %s"
 
-  let private validateOptions =
-    ValidationOptions(OutputFormat = OutputFormat.Basic, RequireFormatValidation = true)
 
-  let checkJsonElement' options (schema: JsonSchema) root =
-    let result = schema.Validate(root, options)
+  [<RequireQualifiedAccess>]
+  module JsonSchema =
 
-    if not (result.IsValid) then
-      JsonSerializer.Serialize(result, validateSerializeOptions)
-      |> failwithf "JSON Schema validation error %s"
+    let validate (schema: JsonSchema) options root = schema.Validate(root, options)
 
-  let checkJson' options (schema: JsonSchema) (text: string) =
-    JsonDocument.Parse(text).RootElement
-    |> checkJsonElement' options schema
+    let checkJson (schema: JsonSchema) options (text: string) =
+      use document = JsonDocument.Parse(text)
 
-    text
+      document.RootElement
+      |> validate schema options
+      |> ValidationResults.checkIsValid
 
-  let checkJson schema text = checkJson' validateOptions schema text
-
-[<RequireQualifiedAccess>]
-module JsonSerializer =
-  open System.Text.Json
-  let serialize options obj = JsonSerializer.Serialize(obj, options)
+      text
 
 type Person =
   { FirstName: string
@@ -43,7 +47,6 @@ type Person =
 
 module Person =
   open System.Text.Json
-  open System.Text.Json.Serialization
   open Json.Schema
 
   let private schema =
@@ -72,12 +75,9 @@ module Person =
   """
     |> JsonSchema.FromText
 
-  let private serializationOptions =
-    let options =
-      JsonSerializerOptions(WriteIndented = true)
+  let validationOptions =
+    ValidationOptions(OutputFormat = OutputFormat.Basic, RequireFormatValidation = true)
 
-    options.Converters.Add(JsonFSharpConverter())
-    options
 
   // looking forward to
   // https://github.com/dotnet/runtime/pull/51025
@@ -85,10 +85,8 @@ module Person =
     {| firstName = p.FirstName
        lastName = p.LastName
        age = p.Age |}
-    |> JsonSerializer.serialize serializationOptions
-    |> JsonSchema.checkJson schema
-
-
+    |> JsonSerializer.serialize (JsonSerializerOptions(WriteIndented = true))
+    |> JsonSchema.checkJson schema validationOptions
 
 { FirstName = "John"
   LastName = "Doe"
