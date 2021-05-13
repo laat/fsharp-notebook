@@ -1,6 +1,5 @@
 #!/usr/bin/env -S dotnet fsi --quiet
 // https://gist.github.com/swlaschin/54cfff886669ccab895a
-
 module Domain =
   type AtLeastOne =
     private
@@ -33,4 +32,5 @@ open Domain
 
 let theOne = AtLeastOne.createWhenAExists 1 None None
 let theOneValue = theOne |> AtLeastOne.value
+
 theOneValue.B // value on the anonymous record :D

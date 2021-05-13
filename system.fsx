@@ -117,6 +117,7 @@ module Seq =
 [<RequireQualifiedAccess>]
 module Uri =
   open System
+
   let inline absolutePath (x: Uri) = x.AbsolutePath
   let inline absoluteUri (x: Uri) = x.AbsoluteUri
   let inline authority (x: Uri) = x.Authority
@@ -169,11 +170,13 @@ module Regex =
 [<RequireQualifiedAccess>]
 module DateTime =
   open System
+
   let inline format (format: string) (d: DateTime) = d.ToString(format)
 
 [<RequireQualifiedAccess>]
 module DateTimeOffset =
   open System
+
   let inline format (format: string) (d: DateTimeOffset) = d.ToString(format)
 
 [<AutoOpen>]
