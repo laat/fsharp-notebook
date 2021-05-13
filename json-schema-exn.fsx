@@ -41,13 +41,11 @@ let document = // should not validate
 }
 """
 
-let validationResult =
-  schema.Validate(document.RootElement, ValidationOptions(OutputFormat = OutputFormat.Basic))
+let validationResult = schema.Validate(document.RootElement, ValidationOptions(OutputFormat = OutputFormat.Basic))
 
 // Serialize to a JSON that's readable and well defined
 // https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10
-let validationJson =
-  JsonSerializer.Serialize(validationResult, JsonSerializerOptions(WriteIndented = true))
+let validationJson = JsonSerializer.Serialize(validationResult, JsonSerializerOptions(WriteIndented = true))
 (*
 {
   "valid": false,
