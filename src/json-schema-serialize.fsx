@@ -75,7 +75,7 @@ module Person =
   """
     |> JsonSchema.FromText
 
-  let validationOptions =
+  let private validationOptions =
     ValidationOptions(OutputFormat = OutputFormat.Basic, RequireFormatValidation = true)
 
 
