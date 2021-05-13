@@ -23,12 +23,10 @@ module JsonSchema =
       JsonSerializer.Serialize(result, validateSerializeOptions)
       |> failwithf "JSON Schema validation error %s"
 
-  let checkJsonElement schema root =
-    checkJsonElement' validateOptions schema root
-
   let checkJson' options (schema: JsonSchema) (text: string) =
-    let document = JsonDocument.Parse(text)
-    checkJsonElement' options schema document.RootElement
+    JsonDocument.Parse(text).RootElement
+    |> checkJsonElement' options schema
+
     text
 
   let checkJson schema text = checkJson' validateOptions schema text
