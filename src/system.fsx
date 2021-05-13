@@ -1,14 +1,28 @@
-[<RequireQualifiedAccess>]
+[<AutoOpen>]
 module Option =
-  let inline ofResult x =
-    match x with
-    | Ok x -> Some x
-    | Error _ -> None
+  [<RequireQualifiedAccess>]
+  module Option =
+    let inline ofResult x =
+      match x with
+      | Ok x -> Some x
+      | Error _ -> None
 
-  let inline toResult err x =
-    match x with
-    | Some x -> Ok x
-    | None -> Error err
+    let inline toResult err x =
+      match x with
+      | Some x -> Ok x
+      | None -> Error err
+
+    let inline zip a b =
+      (a, b) ||> Option.map2 (fun a b -> (a, b))
+
+  module Applicative =
+    [<Struct>]
+    type ApplicativeOptionBuilder =
+      member __.MergeSources(a: option<'a>, b: option<'b>) = Option.zip a b
+      member __.Bind(m: option<'a>, mapping: 'a -> 'b) : option<'b> = Option.map mapping m
+      member __.Return v = v
+
+    let option = ApplicativeOptionBuilder()
 
 [<RequireQualifiedAccess>]
 module Result =
