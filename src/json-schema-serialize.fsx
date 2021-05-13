@@ -20,10 +20,8 @@ module JsonSchema =
     let result = schema.Validate(root, options)
 
     if not (result.IsValid) then
-      let errText =
-        JsonSerializer.Serialize(result, validateSerializeOptions)
-
-      failwithf "JSON Schema validation error %s" errText
+      JsonSerializer.Serialize(result, validateSerializeOptions)
+      |> failwithf "JSON Schema validation error %s"
 
   let checkJsonElement schema root =
     checkJsonElement' validateOptions schema root
