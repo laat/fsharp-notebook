@@ -71,6 +71,8 @@ module Person =
     options
 
   let serialize (p: Person) =
+    // looking forward to
+    // https://github.com/dotnet/runtime/pull/51025
     JsonSerializer.Serialize(
       {| firstName = p.FirstName
          lastName = p.LastName
