@@ -1,5 +1,5 @@
 #!/usr/bin/env -S dotnet fsi --quiet
-open System.Collections.Generic
+open System.Collections.Immutable
 
 type Node =
   { Value: int
@@ -15,28 +15,30 @@ let tree =
           Right = Some { Value = 4; Right = None; Left = None } }
     Right = Some { Value = 5; Left = None; Right = None } }
 
-let rec dfs (res: Node list) (stack: Node list) =
-  match stack with
-  | [] -> res
-  | head :: tail ->
-      dfs
-        (head :: res)
-        (([ head.Left; head.Right ] |> List.choose id)
-         @ tail)
+let printDfs prefix node =
+  let rec dfs result (stack: Node list) =
+    match stack with
+    | [] -> result
+    | head :: tail ->
+        dfs
+          (head :: result)
+          (([ head.Left; head.Right ] |> List.choose id)
+           @ tail)
 
-let rec bfs (queue: Queue<Node>) res =
-  if queue.Count = 0 then
-    res
+  [ node ]
+  |> dfs []
+  |> List.rev
+  |> List.map (fun x -> x.Value)
+  |> printfn "%s %A" prefix
+
+let rec bfs result (queue: ImmutableQueue<Node>) =
+  if queue.IsEmpty then
+    result
   else
-    let node = queue.Dequeue()
-
-    if node.Left.IsSome then
-      queue.Enqueue(node.Left.Value)
-
-    if node.Right.IsSome then
-      queue.Enqueue(node.Right.Value)
-
-    bfs queue (node :: res)
+    let queue, node = queue.Dequeue()
+    let queue = if node.Right.IsSome then queue.Enqueue(node.Right.Value) else queue
+    let queue = if node.Left.IsSome then queue.Enqueue(node.Left.Value) else queue
+    bfs (node :: result) queue
 
 let rec swap computed (nodes: Node list) =
   match nodes with
@@ -51,17 +53,8 @@ let rec swap computed (nodes: Node list) =
           computed)
         tail
 
-let printDfs prefix node =
-  [ node ]
-  |> dfs []
-  |> List.rev
-  |> List.map (fun x -> x.Value)
-  |> printfn "%s %A" prefix
-
-
-tree |> printDfs "original"
-
-bfs (Queue([ tree ])) []
+(ImmutableQueue.Create(tree))
+|> bfs []
 |> swap Map.empty
 |> Map.find (Some tree)
 |> printDfs "inverted"
