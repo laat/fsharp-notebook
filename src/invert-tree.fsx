@@ -4,14 +4,19 @@ type Node =
     Left: Node option
     Right: Node option }
 
+// let tree =
+//   { Value = 9
+//     Left =
+//       Some
+//         { Value = 3
+//           Left = Some { Value = 1; Right = None; Left = None }
+//           Right = Some { Value = 4; Right = None; Left = None } }
+//     Right = Some { Value = 5; Left = None; Right = None } }
+
 let tree =
-  { Value = 9
-    Left =
-      Some
-        { Value = 3
-          Left = Some { Value = 1; Right = None; Left = None }
-          Right = Some { Value = 4; Right = None; Left = None } }
-    Right = Some { Value = 5; Left = None; Right = None } }
+  [ 1 .. 105000 ]
+  |> List.fold (fun (root: Node option) i -> Some { Value = i; Left = None; Right = root }) None
+  |> Option.get
 
 let printDfs prefix node =
   let rec dfs result (stack: Node list) =
