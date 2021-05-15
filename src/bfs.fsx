@@ -15,19 +15,14 @@ let tree =
           Right = Some { Value = 4; Right = None; Left = None } }
     Right = Some { Value = 5; Left = None; Right = None } }
 
-let rec dfs (res: Node list) (stack: Stack<Node>) =
-  if stack.Count = 0 then
-    res
-  else
-    let node = stack.Pop()
-
-    if node.Right.IsSome then
-      stack.Push(node.Right.Value)
-
-    if node.Left.IsSome then
-      stack.Push(node.Left.Value)
-
-    dfs (node :: res) stack
+let rec dfs (res: Node list) (stack: Node list) =
+  match stack with
+  | [] -> res
+  | head :: tail ->
+      dfs
+        (head :: res)
+        (([ head.Left; head.Right ] |> List.choose id)
+         @ tail)
 
 let rec bfs (queue: Queue<Node>) res =
   if queue.Count = 0 then
@@ -57,7 +52,7 @@ let rec swap computed (nodes: Node list) =
         tail
 
 let printDfs prefix node =
-  Stack([ node ])
+  [ node ]
   |> dfs []
   |> List.rev
   |> List.map (fun x -> x.Value)
