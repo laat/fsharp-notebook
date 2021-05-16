@@ -45,6 +45,7 @@ let cps = ContinuationBuilder()
 let rec invertTree node =
   cps {
     match node with
+    | None -> return None
     | Some n ->
         let! left = invertTree n.Left
         let! right = invertTree n.Right
@@ -54,7 +55,6 @@ let rec invertTree node =
             { Value = n.Value
               Right = left
               Left = right }
-    | None -> return None
   }
 
 
