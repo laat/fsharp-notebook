@@ -1,6 +1,4 @@
 #!/usr/bin/env -S dotnet fsi --quiet
-open System.Collections.Immutable
-
 type Node =
   { Value: int
     Left: Node option
@@ -36,27 +34,29 @@ let printDfs prefix node =
   |> List.map (fun x -> x.Value)
   |> printfn "%s %A" prefix
 
-let rec bfs result (queue: ImmutableQueue<Node>) =
-  if queue.IsEmpty then
-    result
-  else
-    let queue, node = queue.Dequeue()
+type Queue<'a> = Queue of list<'a> * list<'a>
 
-    let queue =
-      if node.Right.IsSome then
-        queue.Enqueue(node.Right.Value)
-      else
-        queue
+module Queue =
+  let empty = Queue([], [])
+  let enqueue (Queue (front, back)) x = Queue(front, x :: back)
 
-    let queue =
-      if node.Left.IsSome then
-        queue.Enqueue(node.Left.Value)
-      else
-        queue
+  let rec dequeue =
+    function
+    | Queue ([], []) -> None, Queue([], [])
+    | Queue (x :: front, back) -> Some x, Queue(front, back)
+    | Queue ([], back) -> dequeue (Queue(List.rev back, []))
 
-    bfs (node :: result) queue
+let rec bfs result queue =
+  match Queue.dequeue queue with
+  | None, _ -> result
+  | Some node, queue ->
+      bfs
+        (node :: result)
+        ([ node.Right; node.Left ]
+         |> List.choose id
+         |> List.fold Queue.enqueue queue)
 
-let rec swap computed (nodes: Node list) =
+let rec swap computed nodes =
   match nodes with
   | [] -> computed
   | head :: tail ->
@@ -69,7 +69,8 @@ let rec swap computed (nodes: Node list) =
           computed)
         tail
 
-(ImmutableQueue.Create(tree))
+tree
+|> Queue.enqueue Queue.empty
 |> bfs []
 |> swap Map.empty
 |> Map.find (Some tree)
