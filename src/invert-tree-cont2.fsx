@@ -14,7 +14,7 @@ type Node =
 //     Right = Some { Value = 5; Left = None; Right = None } }
 
 let tree =
-  [ 1 .. 105000 ]
+  [ 1 .. 305000 ]
   |> List.fold (fun (root: Node option) i -> Some { Value = i; Left = None; Right = root }) None
   |> Option.get
 
@@ -34,24 +34,28 @@ let printDfs prefix node =
   |> List.map (fun x -> x.Value)
   |> printfn "%s %A" prefix
 
+type ContinuationBuilder() =
+  member this.Return(x) = (fun k -> k x)
+  member this.ReturnFrom(x) = x
+  member this.Bind(m, f) = (fun k -> m (fun a -> f a k))
+  member this.Delay(f) = (fun k -> f () k)
 
-let rec invertTree node (continuation: Node option -> Node option) =
-  match node with
-  | Some n ->
-      invertTree
-        n.Left
-        (fun left ->
-          invertTree
-            n.Right
-            (fun right ->
-              continuation (
-                Some(
-                  { Value = n.Value
-                    Left = right
-                    Right = left }
-                )
-              )))
-  | None -> continuation None
+let cps = ContinuationBuilder()
+
+let rec invertTree node =
+  cps {
+    match node with
+    | Some n ->
+        let! left = invertTree n.Left
+        let! right = invertTree n.Right
+
+        return
+          Some
+            { Value = n.Value
+              Right = left
+              Left = right }
+    | None -> return None
+  }
 
 
 invertTree (Some tree) id
