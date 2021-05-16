@@ -4,35 +4,33 @@ type Node =
     Left: Node option
     Right: Node option }
 
-let tree =
-  { Value = 9
-    Left =
-      Some
-        { Value = 3
-          Left = Some { Value = 1; Right = None; Left = None }
-          Right = Some { Value = 4; Right = None; Left = None } }
-    Right = Some { Value = 5; Left = None; Right = None } }
-
 // let tree =
-//   [ 1 .. 305000 ]
-//   |> List.fold (fun (root: Node option) i -> Some { Value = i; Left = None; Right = root }) None
-//   |> Option.get
+//   { Value = 9
+//     Left =
+//       Some
+//         { Value = 3
+//           Left = Some { Value = 1; Right = None; Left = None }
+//           Right = Some { Value = 4; Right = None; Left = None } }
+//     Right = Some { Value = 5; Left = None; Right = None } }
+
+let tree =
+  [ 1 .. 305000 ]
+  |> List.fold (fun prev i -> Some { Value = i; Left = None; Right = prev }) None
+  |> Option.get
 
 let printDfs prefix node =
-  let rec dfs result (stack: Node list) =
+  let rec dfs (stack: Node list) result =
     match stack with
     | [] -> result
     | head :: tail ->
         dfs
-          (head :: result)
           (([ head.Left; head.Right ] |> List.choose id)
            @ tail)
+          (head.Value :: result)
 
-  [ node ]
-  |> dfs []
+  dfs [ node ] []
   |> List.rev
-  |> List.map (fun x -> x.Value)
-  |> printfn "%s %A" prefix
+  |> printfn "%s\n%A\n" prefix
 
 type ContinuationBuilder() =
   member this.Return(x) = (fun k -> k x)
@@ -55,6 +53,7 @@ let rec invertTree node =
               Left = right }
   }
 
+tree |> printDfs "original"
 
 invertTree (Some tree) id
 |> Option.get
