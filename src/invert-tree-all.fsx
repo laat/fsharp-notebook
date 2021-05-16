@@ -19,7 +19,8 @@ let printDfs prefix node =
     | [] -> result
     | head :: tail ->
         dfs
-          (([ head.Left; head.Right ] |> List.choose id) @ tail)
+          (([ head.Left; head.Right ] |> List.choose id)
+           @ tail)
           (head.Value :: result)
 
   dfs [ node ] []
@@ -40,9 +41,7 @@ let invertTree (root: Node) =
 
   invert (Some root) |> Option.get
 
-root 
-|> invertTree 
-|> printDfs "inverted simple" // [9; 5; 3; 4; 1]
+root |> invertTree |> printDfs "inverted simple" // [9; 5; 3; 4; 1]
 
 type Queue<'a> = Queue of list<'a> * list<'a>
 
@@ -95,16 +94,24 @@ let invertTree3 root =
     match node with
     | None -> continuation None
     | Some n ->
-        invert n.Left (fun left ->
-            invert n.Right (fun right ->
-                continuation ( Some( { Value = n.Value; Left = right; Right = left }))))
+        invert
+          n.Left
+          (fun left ->
+            invert
+              n.Right
+              (fun right ->
+                continuation (
+                  Some(
+                    { Value = n.Value
+                      Left = right
+                      Right = left }
+                  )
+                )))
 
   invert (Some root) id |> Option.get
 
 
-root 
-|> invertTree3 
-|> printDfs "inverted CSP"
+root |> invertTree3 |> printDfs "inverted CSP"
 
 type ContinuationBuilder() =
   member this.Return(x) = (fun k -> k x)
@@ -120,11 +127,14 @@ let invertTree4 root =
       | Some n ->
           let! left = invert n.Left
           let! right = invert n.Right
-          return Some { Value = n.Value; Right = left; Left = right }
+
+          return
+            Some
+              { Value = n.Value
+                Right = left
+                Left = right }
     }
 
   invert (Some root) id |> Option.get
 
-root 
-|> invertTree4 
-|> printDfs "inverted CSP CE"
+root |> invertTree4 |> printDfs "inverted CSP CE"
