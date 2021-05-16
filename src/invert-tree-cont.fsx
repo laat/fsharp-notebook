@@ -42,44 +42,26 @@ let printDfs prefix node =
   |> List.map (fun x -> x.Value)
   |> printfn "%s %A" prefix
 
-type Queue<'a> = Queue of list<'a> * list<'a>
 
-module Queue =
-  let empty = Queue([], [])
-  let enqueue (Queue (front, back)) x = Queue(front, x :: back)
+let rec invertTree node (continuation: Node option -> Node option) =
+  match node with
+  | Some n ->
+      invertTree
+        n.Left
+        (fun left ->
+          invertTree
+            n.Right
+            (fun right ->
+              continuation (
+                Some(
+                  { Value = n.Value
+                    Left = right
+                    Right = left }
+                )
+              )))
+  | None -> continuation None
 
-  let rec dequeue =
-    function
-    | Queue ([], []) -> None, Queue([], [])
-    | Queue (x :: front, back) -> Some x, Queue(front, back)
-    | Queue ([], back) -> dequeue (Queue(List.rev back, []))
 
-let rec bfs result queue =
-  match Queue.dequeue queue with
-  | None, _ -> result
-  | Some node, queue ->
-      bfs
-        (node :: result)
-        ([ node.Right; node.Left ]
-         |> List.choose id
-         |> List.fold Queue.enqueue queue)
-
-let rec swap computed nodes =
-  match nodes with
-  | [] -> computed
-  | head :: tail ->
-      swap
-        (Map.add
-          (Some head)
-          { Value = head.Value
-            Left = Map.tryFind head.Right computed
-            Right = Map.tryFind head.Left computed }
-          computed)
-        tail
-
-tree
-|> Queue.enqueue Queue.empty
-|> bfs []
-|> swap Map.empty
-|> Map.find (Some tree)
+invertTree (Some tree) id
+|> Option.get
 |> printDfs "inverted"
