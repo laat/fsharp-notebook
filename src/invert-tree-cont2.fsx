@@ -35,6 +35,7 @@ let printDfs prefix node =
 type ContinuationBuilder() =
   member this.Return(x) = (fun k -> k x)
   member this.Bind(m, f) = (fun k -> m (fun a -> f a k))
+  member this.Delay(mk) = fun c -> mk () c
 
 let cps = ContinuationBuilder()
 
