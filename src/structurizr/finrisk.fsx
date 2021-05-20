@@ -10,7 +10,7 @@ open Structurizr.Api
 let AlertTag = "Alert"
 
 let workspace =
-    new Workspace(
+    Workspace(
         "Financial Risk System",
         "This is a simple (incomplete) example C4 model based upon the financial risk system architecture kata, which can be found at http://bit.ly/sa4d-risksystem"
     )
@@ -97,22 +97,22 @@ contextView.AddAllPeople()
 let styles = views.Configuration.Styles
 financialRiskSystem.AddTags("Risk System")
 
-styles.Add(new ElementStyle(Tags.Element, Color = "#ffffff", FontSize = 34))
-styles.Add(new ElementStyle("Risk System", Background = "#550000", Color = "#ffffff"))
+styles.Add(ElementStyle(Tags.Element, Color = "#ffffff", FontSize = 34))
+styles.Add(ElementStyle("Risk System", Background = "#550000", Color = "#ffffff"))
 
 styles.Add(
-    new ElementStyle(Tags.SoftwareSystem, Width = 650, Height = 400, Background = "#801515", Shape = Shape.RoundedBox)
+    ElementStyle(Tags.SoftwareSystem, Width = 650, Height = 400, Background = "#801515", Shape = Shape.RoundedBox)
 )
 
-styles.Add(new ElementStyle(Tags.Person, Width = 550, Background = "#d46a6a", Shape = Shape.Person))
+styles.Add(ElementStyle(Tags.Person, Width = 550, Background = "#d46a6a", Shape = Shape.Person))
 
-styles.Add(new RelationshipStyle(Tags.Relationship, Thickness = 4, Dashed = false, FontSize = 32, Width = 400))
-styles.Add(new RelationshipStyle(Tags.Synchronous, Dashed = false))
-styles.Add(new RelationshipStyle(Tags.Asynchronous, Dashed = true))
-styles.Add(new RelationshipStyle(AlertTag, Color = "#ff0000"))
+styles.Add(RelationshipStyle(Tags.Relationship, Thickness = 4, Dashed = false, FontSize = 32, Width = 400))
+styles.Add(RelationshipStyle(Tags.Synchronous, Dashed = false))
+styles.Add(RelationshipStyle(Tags.Asynchronous, Dashed = true))
+styles.Add(RelationshipStyle(AlertTag, Color = "#ff0000"))
 
-styles.Add(new ElementStyle("Future State", Opacity = 30, Border = Border.Dashed))
-styles.Add(new RelationshipStyle("Future State", Opacity = 30, Dashed = true))
+styles.Add(ElementStyle("Future State", Opacity = 30, Border = Border.Dashed))
+styles.Add(RelationshipStyle("Future State", Opacity = 30, Dashed = true))
 
 
 let envVars = DotEnv.Read()
