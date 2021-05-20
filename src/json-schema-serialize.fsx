@@ -6,50 +6,50 @@
 
 [<AutoOpen>]
 module Json =
-  [<RequireQualifiedAccess>]
-  module JsonSerializer =
-    open System.Text.Json
-    let inline serialize options obj = JsonSerializer.Serialize(obj, options)
+    [<RequireQualifiedAccess>]
+    module JsonSerializer =
+        open System.Text.Json
+        let inline serialize options obj = JsonSerializer.Serialize(obj, options)
 
 [<AutoOpen>]
 module JsonSchema =
-  open System.Text.Json
-  open Json.Schema
+    open System.Text.Json
+    open Json.Schema
 
-  [<RequireQualifiedAccess>]
-  module ValidationResults =
-    let checkIsValid (result: ValidationResults) =
-      if not (result.IsValid) then
-        result
-        |> JsonSerializer.serialize (JsonSerializerOptions(WriteIndented = true))
-        |> failwithf "JSON Schema validation error %s"
+    [<RequireQualifiedAccess>]
+    module ValidationResults =
+        let checkIsValid (result: ValidationResults) =
+            if not (result.IsValid) then
+                result
+                |> JsonSerializer.serialize (JsonSerializerOptions(WriteIndented = true))
+                |> failwithf "JSON Schema validation error %s"
 
 
-  [<RequireQualifiedAccess>]
-  module JsonSchema =
+    [<RequireQualifiedAccess>]
+    module JsonSchema =
 
-    let validate (schema: JsonSchema) options root = schema.Validate(root, options)
+        let validate (schema: JsonSchema) options root = schema.Validate(root, options)
 
-    let checkJson (schema: JsonSchema) options (text: string) =
-      use document = JsonDocument.Parse(text)
+        let checkJson (schema: JsonSchema) options (text: string) =
+            use document = JsonDocument.Parse(text)
 
-      document.RootElement
-      |> validate schema options
-      |> ValidationResults.checkIsValid
+            document.RootElement
+            |> validate schema options
+            |> ValidationResults.checkIsValid
 
-      text
+            text
 
 type Person =
-  { FirstName: string
-    LastName: string
-    Age: int }
+    { FirstName: string
+      LastName: string
+      Age: int }
 
 module Person =
-  open System.Text.Json
-  open Json.Schema
+    open System.Text.Json
+    open Json.Schema
 
-  let private schema =
-    """
+    let private schema =
+        """
 {
   "$id": "https://example.com/person.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -72,20 +72,20 @@ module Person =
   }
 }
   """
-    |> JsonSchema.FromText
+        |> JsonSchema.FromText
 
-  let private validationOptions =
-    ValidationOptions(OutputFormat = OutputFormat.Basic, RequireFormatValidation = true)
+    let private validationOptions =
+        ValidationOptions(OutputFormat = OutputFormat.Basic, RequireFormatValidation = true)
 
 
-  // looking forward to
-  // https://github.com/dotnet/runtime/pull/51025
-  let toJson (p: Person) =
-    {| firstName = p.FirstName
-       lastName = p.LastName
-       age = p.Age |}
-    |> JsonSerializer.serialize (JsonSerializerOptions(WriteIndented = true))
-    |> JsonSchema.checkJson schema validationOptions
+    // looking forward to
+    // https://github.com/dotnet/runtime/pull/51025
+    let toJson (p: Person) =
+        {| firstName = p.FirstName
+           lastName = p.LastName
+           age = p.Age |}
+        |> JsonSerializer.serialize (JsonSerializerOptions(WriteIndented = true))
+        |> JsonSchema.checkJson schema validationOptions
 
 { FirstName = "John"
   LastName = "Doe"

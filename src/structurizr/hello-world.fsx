@@ -9,21 +9,21 @@ open Structurizr.Api
 
 
 let workspace =
-  Workspace("Documentation - arc42", "An empty software architecture document using the arc42 template.")
+    Workspace("Documentation - arc42", "An empty software architecture document using the arc42 template.")
 
 let model = workspace.Model
 let views = workspace.Views
 
 let user =
-  model.AddPerson("User", "A user of my system")
+    model.AddPerson("User", "A user of my system")
 
 let system =
-  model.AddSoftwareSystem("Software System", "My system.")
+    model.AddSoftwareSystem("Software System", "My system.")
 
 user.Uses(system, "Uses")
 
 let ctxView =
-  views.CreateSystemContextView(system, "system context", "system context diagram")
+    views.CreateSystemContextView(system, "system context", "system context diagram")
 
 ctxView.AddAllPeople()
 ctxView.AddAllSoftwareSystems()
@@ -35,4 +35,4 @@ styles.Add(ElementStyle(Tags.Person, Background = "#08427b", Color = "#ffffff", 
 let envVars = DotEnv.Read()
 
 StructurizrClient(envVars.["STRUCTURIZR_API_KEY"], envVars.["STRUCTURIZR_SECRET"])
-  .PutWorkspace(envVars.["STRUCTURIZR_WORKSPACE"] |> int64, workspace)
+    .PutWorkspace(envVars.["STRUCTURIZR_WORKSPACE"] |> int64, workspace)

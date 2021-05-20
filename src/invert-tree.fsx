@@ -1,8 +1,8 @@
 #!/usr/bin/env -S dotnet fsi --quiet
 type Node =
-  { Value: int
-    Left: Node option
-    Right: Node option }
+    { Value: int
+      Left: Node option
+      Right: Node option }
 
 // let tree =
 //   { Value = 9
@@ -14,25 +14,25 @@ type Node =
 //     Right = Some { Value = 5; Left = None; Right = None } }
 
 let tree =
-  [ 1 .. 105000 ]
-  |> List.fold (fun (root: Node option) i -> Some { Value = i; Left = None; Right = root }) None
-  |> Option.get
+    [ 1 .. 105000 ]
+    |> List.fold (fun (root: Node option) i -> Some { Value = i; Left = None; Right = root }) None
+    |> Option.get
 
 let printDfs prefix node =
-  let rec dfs result (stack: Node list) =
-    match stack with
-    | [] -> result
-    | head :: tail ->
-        dfs
-          (head :: result)
-          (([ head.Left; head.Right ] |> List.choose id)
-           @ tail)
+    let rec dfs result (stack: Node list) =
+        match stack with
+        | [] -> result
+        | head :: tail ->
+            dfs
+                (head :: result)
+                (([ head.Left; head.Right ] |> List.choose id)
+                 @ tail)
 
-  [ node ]
-  |> dfs []
-  |> List.rev
-  |> List.map (fun x -> x.Value)
-  |> printfn "%s %A" prefix
+    [ node ]
+    |> dfs []
+    |> List.rev
+    |> List.map (fun x -> x.Value)
+    |> printfn "%s %A" prefix
 
 // // FIXME: implement invertion of the tree
 // let invertTree (root: Node) = root
@@ -41,13 +41,13 @@ let printDfs prefix node =
 // tree |> invertTree |> printDfs "inverted"
 
 let rec invertTree node =
-  match node with
-  | Some n ->
-      Some
-        { Value = n.Value
-          Left = invertTree n.Right
-          Right = invertTree n.Left }
-  | None -> None
+    match node with
+    | Some n ->
+        Some
+            { Value = n.Value
+              Left = invertTree n.Right
+              Right = invertTree n.Left }
+    | None -> None
 
 Some tree
 |> invertTree

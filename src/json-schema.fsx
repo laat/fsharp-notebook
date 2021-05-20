@@ -8,8 +8,8 @@ open Json.Schema
 open System.Text.Json
 
 let schema =
-  JsonSchema.FromText
-    """
+    JsonSchema.FromText
+        """
 {
   "$id": "https://example.com/person.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -34,8 +34,8 @@ let schema =
 """
 
 let document =
-  JsonDocument.Parse
-    """
+    JsonDocument.Parse
+        """
 {
   "firstName": "John",
   "lastName": "Doe",

@@ -8,24 +8,24 @@ open Json.Schema
 open System.Text.Json
 
 module JsonSchema =
-  /// get schema from <c>#/$defs/typeName</c> or <c>#/definitions/typeName</c>
-  let tryGetDefinition typeName (schema: JsonSchema) =
-    schema.Keywords
-    |> Seq.choose
-         (function
-         | :? DefsKeyword as res -> Some res.Definitions // JSON Schema Draft 2020-12 $defs
-         | :? DefinitionsKeyword as res -> Some res.Definitions // Old definitions keyword
-         | _ -> None)
-    |> Seq.choose
-         (fun x ->
-           match x.TryGetValue(typeName) with
-           | true, x -> Some x
-           | _ -> None)
-    |> Seq.tryHead
+    /// get schema from <c>#/$defs/typeName</c> or <c>#/definitions/typeName</c>
+    let tryGetDefinition typeName (schema: JsonSchema) =
+        schema.Keywords
+        |> Seq.choose
+            (function
+            | :? DefsKeyword as res -> Some res.Definitions // JSON Schema Draft 2020-12 $defs
+            | :? DefinitionsKeyword as res -> Some res.Definitions // Old definitions keyword
+            | _ -> None)
+        |> Seq.choose
+            (fun x ->
+                match x.TryGetValue(typeName) with
+                | true, x -> Some x
+                | _ -> None)
+        |> Seq.tryHead
 
 let schema =
-  JsonSchema.FromText
-    """
+    JsonSchema.FromText
+        """
 {
   "$id": "https://example.com/arrays.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -51,8 +51,8 @@ let schema =
 
 
 let document =
-  JsonDocument.Parse
-    """
+    JsonDocument.Parse
+        """
 {
   "veggieName": "potato",
   "veggieLike": true
@@ -60,11 +60,11 @@ let document =
 """
 
 let veggieSchema =
-  schema
-  |> JsonSchema.tryGetDefinition "veggie"
-  |> Option.get
+    schema
+    |> JsonSchema.tryGetDefinition "veggie"
+    |> Option.get
 
 let validation =
-  veggieSchema.Validate(document.RootElement)
+    veggieSchema.Validate(document.RootElement)
 
 printfn $"document is valid: {validation.IsValid}"

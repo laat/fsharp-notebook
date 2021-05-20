@@ -1,16 +1,16 @@
 #!/usr/bin/env -S dotnet fsi --quiet
 type Node =
-  { Value: int
-    Left: Node option
-    Right: Node option }
+    { Value: int
+      Left: Node option
+      Right: Node option }
 
 type TreeNode =
-  | Empty
-  | Node of TreeNode * int * TreeNode
+    | Empty
+    | Node of TreeNode * int * TreeNode
 
 let root =
-  [ 1 .. 105000 ]
-  |> List.fold (fun prev x -> Node(Empty, x, prev)) Empty
+    [ 1 .. 105000 ]
+    |> List.fold (fun prev x -> Node(Empty, x, prev)) Empty
 
 // let tree =
 //   { Value = 9
@@ -22,60 +22,60 @@ let root =
 //     Right = Some { Value = 5; Left = None; Right = None } }
 
 let tree =
-  [ 1 .. 105000 ]
-  |> List.fold (fun (root: Node option) i -> Some { Value = i; Left = None; Right = root }) None
-  |> Option.get
+    [ 1 .. 105000 ]
+    |> List.fold (fun (root: Node option) i -> Some { Value = i; Left = None; Right = root }) None
+    |> Option.get
 
 let printDfs prefix node =
-  let rec dfs result (stack: Node list) =
-    match stack with
-    | [] -> result
-    | head :: tail ->
-        dfs
-          (head :: result)
-          (([ head.Left; head.Right ] |> List.choose id)
-           @ tail)
+    let rec dfs result (stack: Node list) =
+        match stack with
+        | [] -> result
+        | head :: tail ->
+            dfs
+                (head :: result)
+                (([ head.Left; head.Right ] |> List.choose id)
+                 @ tail)
 
-  [ node ]
-  |> dfs []
-  |> List.rev
-  |> List.map (fun x -> x.Value)
-  |> printfn "%s %A" prefix
+    [ node ]
+    |> dfs []
+    |> List.rev
+    |> List.map (fun x -> x.Value)
+    |> printfn "%s %A" prefix
 
 type Queue<'a> = Queue of list<'a> * list<'a>
 
 module Queue =
-  let empty = Queue([], [])
-  let enqueue (Queue (front, back)) x = Queue(front, x :: back)
+    let empty = Queue([], [])
+    let enqueue (Queue (front, back)) x = Queue(front, x :: back)
 
-  let rec dequeue =
-    function
-    | Queue ([], []) -> None, Queue([], [])
-    | Queue (x :: front, back) -> Some x, Queue(front, back)
-    | Queue ([], back) -> dequeue (Queue(List.rev back, []))
+    let rec dequeue =
+        function
+        | Queue ([], []) -> None, Queue([], [])
+        | Queue (x :: front, back) -> Some x, Queue(front, back)
+        | Queue ([], back) -> dequeue (Queue(List.rev back, []))
 
 let rec bfs result queue =
-  match Queue.dequeue queue with
-  | None, _ -> result
-  | Some node, queue ->
-      bfs
-        (node :: result)
-        ([ node.Right; node.Left ]
-         |> List.choose id
-         |> List.fold Queue.enqueue queue)
+    match Queue.dequeue queue with
+    | None, _ -> result
+    | Some node, queue ->
+        bfs
+            (node :: result)
+            ([ node.Right; node.Left ]
+             |> List.choose id
+             |> List.fold Queue.enqueue queue)
 
 let rec swap computed nodes =
-  match nodes with
-  | [] -> computed
-  | head :: tail ->
-      swap
-        (Map.add
-          (Some head)
-          { Value = head.Value
-            Left = Map.tryFind head.Right computed
-            Right = Map.tryFind head.Left computed }
-          computed)
-        tail
+    match nodes with
+    | [] -> computed
+    | head :: tail ->
+        swap
+            (Map.add
+                (Some head)
+                { Value = head.Value
+                  Left = Map.tryFind head.Right computed
+                  Right = Map.tryFind head.Left computed }
+                computed)
+            tail
 
 tree
 |> Queue.enqueue Queue.empty

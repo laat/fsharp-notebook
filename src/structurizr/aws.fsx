@@ -11,65 +11,65 @@ let springBootTag = "Spring Boot Application"
 let databaseTag = "Database"
 
 let workspace =
-  Workspace("Amazon Web Services Example", "An example AWS deployment architecture.")
+    Workspace("Amazon Web Services Example", "An example AWS deployment architecture.")
 
 let model = workspace.Model
 
 let softwareSystem =
-  model.AddSoftwareSystem(
-    "Spring PetClinic",
-    "Allows employees to view and manage information regarding the veterinarians, the clients, and their pets."
-  )
+    model.AddSoftwareSystem(
+        "Spring PetClinic",
+        "Allows employees to view and manage information regarding the veterinarians, the clients, and their pets."
+    )
 
 let webApplication =
-  softwareSystem.AddContainer(
-    "Web Application",
-    "Allows employees to view and manage information regarding the veterinarians, the clients, and their pets.",
-    "Java and Spring Boot"
-  )
+    softwareSystem.AddContainer(
+        "Web Application",
+        "Allows employees to view and manage information regarding the veterinarians, the clients, and their pets.",
+        "Java and Spring Boot"
+    )
 
 webApplication.AddTags(springBootTag)
 
 let database =
-  softwareSystem.AddContainer(
-    "Database",
-    "Stores information regarding the veterinarians, the clients, and their pets.",
-    "Relational database schema"
-  )
+    softwareSystem.AddContainer(
+        "Database",
+        "Stores information regarding the veterinarians, the clients, and their pets.",
+        "Relational database schema"
+    )
 
 database.AddTags(databaseTag)
 
 webApplication.Uses(database, "Reads from and writes to", "JDBC/SSL")
 
 let amazonWebServices =
-  model.AddDeploymentNode("Amazon Web Services")
+    model.AddDeploymentNode("Amazon Web Services")
 
 amazonWebServices.AddTags("Amazon Web Services - Cloud")
 
 let amazonRegion =
-  amazonWebServices.AddDeploymentNode("US-East-1")
+    amazonWebServices.AddDeploymentNode("US-East-1")
 
 amazonRegion.AddTags("Amazon Web Services - Region")
 
 let autoscalingGroup =
-  amazonRegion.AddDeploymentNode("Autoscaling group")
+    amazonRegion.AddDeploymentNode("Autoscaling group")
 
 autoscalingGroup.AddTags("Amazon Web Services - Auto Scaling")
 
 let ec2 =
-  autoscalingGroup.AddDeploymentNode("Amazon EC2")
+    autoscalingGroup.AddDeploymentNode("Amazon EC2")
 
 ec2.AddTags("Amazon Web Services - EC2")
 
 let webApplicationInstance = ec2.Add(webApplication)
 
 let route53 =
-  amazonRegion.AddInfrastructureNode("Route 53")
+    amazonRegion.AddInfrastructureNode("Route 53")
 
 route53.AddTags("Amazon Web Services - Route 53")
 
 let elb =
-  amazonRegion.AddInfrastructureNode("Elastic Load Balancer")
+    amazonRegion.AddInfrastructureNode("Elastic Load Balancer")
 
 elb.AddTags("Amazon Web Services - Elastic Load Balancing")
 
@@ -77,7 +77,7 @@ route53.Uses(elb, "Forwards requests to", "HTTPS")
 elb.Uses(webApplicationInstance, "Forwards requests to", "HTTPS")
 
 let rds =
-  amazonRegion.AddDeploymentNode("Amazon RDS")
+    amazonRegion.AddDeploymentNode("Amazon RDS")
 
 rds.AddTags("Amazon Web Services - RDS")
 
@@ -89,7 +89,7 @@ let databaseInstance = mySql.Add(database)
 let views = workspace.Views
 
 let deploymentView =
-  views.CreateDeploymentView(softwareSystem, "AmazonWebServicesDeployment", "An example deployment diagram.")
+    views.CreateDeploymentView(softwareSystem, "AmazonWebServicesDeployment", "An example deployment diagram.")
 
 deploymentView.AddAllDeploymentNodes()
 deploymentView.AddAnimation(route53)
@@ -107,4 +107,4 @@ views.Configuration.Theme = "https://raw.githubusercontent.com/structurizr/theme
 let envVars = DotEnv.Read()
 
 StructurizrClient(envVars.["STRUCTURIZR_API_KEY"], envVars.["STRUCTURIZR_SECRET"])
-  .PutWorkspace(envVars.["STRUCTURIZR_WORKSPACE"] |> int64, workspace)
+    .PutWorkspace(envVars.["STRUCTURIZR_WORKSPACE"] |> int64, workspace)
