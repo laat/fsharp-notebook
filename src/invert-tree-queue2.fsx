@@ -42,6 +42,11 @@ module Queue =
     let isEmpty (Queue (front, back)) = List.isEmpty front && List.isEmpty back
     let enqueue x (Queue (front, back)) = Queue(front, x :: back)
 
+    let enqueueOption xOpt q =
+        xOpt
+        |> Option.map (fun x -> enqueue x q)
+        |> Option.defaultValue q
+
     let dequeue (Queue (front, back)) =
         match front, back with
         | x :: front, back -> Some x, Queue(front, back)
@@ -54,19 +59,11 @@ let rec bfs result (queue: Queue<Node>) =
     match Queue.dequeue queue with
     | None, _ -> result
     | Some node, queue ->
-        let queue =
-            if node.Right.IsSome then
-                Queue.enqueue (node.Right.Value) queue
-            else
-                queue
-
-        let queue =
-            if node.Left.IsSome then
-                Queue.enqueue (node.Left.Value) queue
-            else
-                queue
-
-        bfs (node :: result) queue
+        bfs
+            (node :: result)
+            (queue
+             |> Queue.enqueueOption node.Right
+             |> Queue.enqueueOption node.Left)
 
 let rec swap computed (nodes: Node list) =
     match nodes with
