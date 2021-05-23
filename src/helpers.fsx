@@ -1,3 +1,5 @@
+module Helpers
+
 [<AutoOpen>]
 module Option =
     [<RequireQualifiedAccess>]
@@ -101,21 +103,71 @@ module String =
         | [| case |] -> Some(FSharpValue.MakeUnion(case, [||]) :?> 'a)
         | _ -> None
 
-[<RequireQualifiedAccess>]
+[<AutoOpen>]
 module Async =
+
     open System
-    let inline bind f x = async.Bind(x, f)
-    let inline map f x = bind (f >> async.Return) x
+    open System.Threading.Tasks
+    open System.Runtime.ExceptionServices
 
-    let loopSleep (sleep: TimeSpan) fn =
-        let rec loop' () =
-            async {
-                do! fn ()
-                do! Async.Sleep sleep
-                return! loop' ()
-            }
 
-        loop' ()
+    [<RequireQualifiedAccess>]
+    module Async =
+        let inline bind f x = async.Bind(x, f)
+        let inline map f x = bind (f >> async.Return) x
+
+        // https://github.com/fsharp/fslang-suggestions/issues/660#issuecomment-382070639
+        let reraise (ex: Exception) =
+            (ExceptionDispatchInfo.Capture ex).Throw()
+            Unchecked.defaultof<_>
+
+        let loopSleep (sleep: TimeSpan) fn =
+            let rec loop' () =
+                async {
+                    do! fn ()
+                    do! Async.Sleep sleep
+                    return! loop' ()
+                }
+
+            loop' ()
+
+    // http://www.fssnip.net/7Rc/title/AsyncAwaitTaskCorrect
+    type Async with
+        static member AwaitTaskCorrect(task: Task) : Async<unit> =
+            Async.FromContinuations
+                (fun (sc, ec, cc) ->
+                    task.ContinueWith
+                        (fun (task: Task) ->
+                            if task.IsFaulted then
+                                let e = task.Exception
+
+                                if e.InnerExceptions.Count = 1 then
+                                    ec e.InnerExceptions.[0]
+                                else
+                                    ec e
+                            elif task.IsCanceled then
+                                ec (TaskCanceledException())
+                            else
+                                sc ())
+                    |> ignore)
+
+        static member AwaitTaskCorrect(task: Task<'T>) : Async<'T> =
+            Async.FromContinuations
+                (fun (sc, ec, cc) ->
+                    task.ContinueWith
+                        (fun (task: Task<'T>) ->
+                            if task.IsFaulted then
+                                let e = task.Exception
+
+                                if e.InnerExceptions.Count = 1 then
+                                    ec e.InnerExceptions.[0]
+                                else
+                                    ec e
+                            elif task.IsCanceled then
+                                ec (TaskCanceledException())
+                            else
+                                sc task.Result)
+                    |> ignore)
 
 [<RequireQualifiedAccess>]
 module AsyncOption =
@@ -214,3 +266,9 @@ module Float =
         match Double.TryParse(str: string) with
         | (true, d) -> Some(d)
         | _ -> None
+
+// tryGetValue pattern match
+let (|GotValue|_|) v =
+    match v with
+    | true, v -> Some v
+    | false, _ -> None
