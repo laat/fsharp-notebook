@@ -14,11 +14,6 @@ open Azure.Storage.Blobs.Models
 open FSharp.Control.Tasks
 
 
-let private (|GotValue|_|) v =
-    match v with
-    | true, v -> Some v
-    | false, _ -> None
-
 type private BlobDocument<'a> = { ETag: ETag; Value: 'a }
 
 type EtagDownloader<'a>
