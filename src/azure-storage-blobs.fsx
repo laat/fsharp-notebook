@@ -20,7 +20,7 @@ type BlobClient with
                     rangeGetContentHash = defaultArg rangeGetContentHash false,
                     cancellationToken = token
                 )
-                |> Async.AwaitTaskCorrect
+                |> Async.AwaitTask2
         }
 
     member this.AsyncExists() =
@@ -29,7 +29,7 @@ type BlobClient with
 
             return!
                 this.ExistsAsync(cancellationToken = token)
-                |> Async.AwaitTaskCorrect
+                |> Async.AwaitTask2
         }
 
     member this.AsyncDelete(?snapshotsOption: DeleteSnapshotsOption, ?conditions: BlobRequestConditions) =
@@ -42,5 +42,5 @@ type BlobClient with
                     conditions = defaultArg conditions null,
                     cancellationToken = token
                 )
-                |> Async.AwaitTaskCorrect
+                |> Async.AwaitTask2
         }

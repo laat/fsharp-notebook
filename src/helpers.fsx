@@ -133,7 +133,7 @@ module Async =
 
     // http://www.fssnip.net/7Rc/title/AsyncAwaitTaskCorrect
     type Async with
-        static member AwaitTaskCorrect(task: Task) : Async<unit> =
+        static member AwaitTask2(task: Task) : Async<unit> =
             Async.FromContinuations
                 (fun (sc, ec, cc) ->
                     task.ContinueWith
@@ -151,7 +151,7 @@ module Async =
                                 sc ())
                     |> ignore)
 
-        static member AwaitTaskCorrect(task: Task<'T>) : Async<'T> =
+        static member AwaitTask2(task: Task<'T>) : Async<'T> =
             Async.FromContinuations
                 (fun (sc, ec, cc) ->
                     task.ContinueWith

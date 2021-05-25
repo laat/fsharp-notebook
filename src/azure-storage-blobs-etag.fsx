@@ -67,5 +67,5 @@ type EtagDownloader<'a>
 
             return!
                 this.DownloadAsync(client, token = token)
-                |> Async.AwaitTaskCorrect
+                |> Async.AwaitTask2
         }
