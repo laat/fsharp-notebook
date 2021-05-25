@@ -1,12 +1,15 @@
 #!/usr/bin/env -S dotnet fsi --quiet
-#r "nuget: Azure.Storage.Blobs, 12.8.4"#load "helpers.fsx"
-namespace Azure.Storage.Blobs
+#r "nuget: Azure.Storage.Blobs, 12.8.4"
+#load "helpers.fsx"
+
+// namespace Azure.Storage.Blobs
 
 [<AutoOpen>]
 module BlobClient =
     open System
     open System.IO
     open Azure
+    open Azure.Storage.Blobs
     open Azure.Storage.Blobs.Models
 
     type BlobClient with
